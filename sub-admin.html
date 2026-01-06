@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinteAsho Employee</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .hidden { display: none !important; }
+        .btn { padding: 8px 12px; cursor: pointer; border:none; border-radius:4px; color:white; font-size:0.9rem; margin-right: 3px; }
+        .tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; }
+        .tab-btn { background: #e4e6eb; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; color: #555; font-weight: 600; flex-grow: 1; }
+        .tab-btn.active { background: #D4AF37; color: black; }
+        .table-wrapper { width: 100%; overflow-x: auto; margin-top: 15px; border: 1px solid #eee; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; vertical-align: middle; }
+        th { background: #D4AF37; color: #333; }
+        input, select { padding: 10px; border:1px solid #ddd; width: 100%; box-sizing: border-box; margin-bottom: 10px; border-radius: 5px; }
+        .variant-list-item { background: #fff; border: 1px solid #ddd; padding: 5px 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    
+    <div id="login-view" style="max-width:300px; margin:100px auto; background:white; padding:30px; text-align:center; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+        <h2>Employee Login</h2>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="doLogin()" class="btn" style="background:#D4AF37; color:black; width:100%;">Login</button>
+    </div>
+
+    <div id="panel-view" class="container hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0;">Employee: <span id="emp-name" style="color:#D4AF37;"></span></h2>
+            <button onclick="logout()" class="btn" style="background:#333;">Logout</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('ord')">Orders</button>
+            <button class="tab-btn" onclick="showTab('prod')">Manage Products</button>
+            <button class="tab-btn" onclick="showTab('myearn')">Earnings</button>
+            <button class="tab-btn hidden" id="btn-pay" onclick="showTab('pay')">Payment</button>
+            <button class="tab-btn hidden" id="btn-earn" onclick="showTab('earn')">All Revenue</button>
+            <button class="tab-btn" onclick="showTab('prof')">Profile</button>
+        </div>
+
+        <div id="tab-ord">
+            <h3>Process Orders</h3>
+            <div class="table-wrapper">
+                <table><thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Total</th><th>Status</th></tr></thead><tbody id="ord-list"></tbody></table>
+            </div>
+        </div>
+
+        <div id="tab-prod" class="hidden">
+            <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px;">
+                <h3>Add / Edit Product</h3>
+                <input type="hidden" id="p-key">
+                <p style="color:#666; margin-top:0;"><i>Commission earned on sales of products you created.</i></p>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="p-name" placeholder="Product Name">
+                    <input type="number" id="p-price" placeholder="Price">
+                </div>
+                <input type="text" id="p-desc" placeholder="Description">
+                <hr style="margin:10px 0; border:0; border-top:1px solid #ddd;">
+                <label style="font-weight:bold;">Variants</label>
+                <div style="display:flex; gap:5px;"><input type="text" id="v-name" placeholder="Name"><input type="text" id="v-img" placeholder="Image URL"></div>
+                <button onclick="addVariant()" class="btn" style="background:#33b5e5; width:100%; margin-bottom:10px;">+ Add Variant</button>
+                <div id="variant-list" style="background:#eee; padding:10px; border-radius:5px; margin-bottom:10px;"></div>
+                <button onclick="saveProduct()" class="btn" style="background:#00C851; width:100%; padding:10px;">Save Product</button>
+                <button onclick="clearForm()" class="btn" style="background:#333; width:100%; margin-top:5px;">Clear / Cancel</button>
+            </div>
+            <h3>Current Inventory</h3>
+            <div class="table-wrapper">
+                <table><thead><tr><th>Img</th><th>Name</th><th>Price</th><th>Creator</th><th>Action</th></tr></thead><tbody id="prod-list"></tbody></table>
+            </div>
+        </div>
+
+        <div id="tab-myearn" class="hidden">
+            <h3>My Commission</h3>
+            <p>Your Rate: <strong id="comm-rate-disp">5%</strong></p>
+            <div style="background:#fff3cd; padding:20px; border-radius:8px; text-align:center; border:1px solid #ffeeba;"><h2>Total Earned: <span id="my-total-comm">৳0</span></h2></div>
+            <h4>Breakdown:</h4><ul id="comm-list"></ul>
+        </div>
+
+        <div id="tab-pay" class="hidden">
+            <h3>Payment Settings (Authorized)</h3>
+            <label>Inside Dhaka (৳)</label><input type="number" id="pay-in">
+            <label>Outside Dhaka (৳)</label><input type="number" id="pay-out">
+            <label>Policy</label><select id="pay-pol"><option value="delivery_only">Delivery Only</option><option value="full_payment">Full Payment</option></select>
+            <h4>Numbers</h4><div id="pay-nums"></div>
+            <div style="display:flex; gap:10px;"><input type="text" id="new-prov" placeholder="Provider"><input type="text" id="new-num" placeholder="Number"></div>
+            <button onclick="addPayNum()" class="btn" style="background:#00C851; width:100%;">Add Number</button>
+            <button onclick="savePay()" class="btn" style="background:#33b5e5; width:100%; margin-top:15px;">Save Settings</button>
+        </div>
+
+        <div id="tab-earn" class="hidden">
+            <h3>All Revenue (Authorized)</h3>
+            <div style="background:#fafafa; padding:15px; margin-bottom:10px; border-left:5px solid #00C851;">
+                <h3>Total Revenue</h3><h1 id="disp-earn" style="margin:0; color:#00C851;">...</h1>
+            </div>
+            <div style="background:#fafafa; padding:15px; margin-bottom:10px; border-left:5px solid #33b5e5;">
+                <h3>Net Profit</h3><h1 id="disp-profit" style="margin:0; color:#33b5e5;">...</h1>
+                <small>(Revenue - Delivery Costs)</small>
+            </div>
+        </div>
+
+        <div id="tab-prof" class="hidden">
+            <h3>Edit My Credentials</h3>
+            <label>New Username:</label><input type="text" id="my-u">
+            <label>New Password:</label><input type="text" id="my-p">
+            <button onclick="updateProfile()" class="btn" style="background:#D4AF37; width:100%; color:black;">Update Profile</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update, get, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const app = initializeApp({ apiKey: "AIzaSyAFzsx6gQqMTM9_uzHLcSxM1cLIaJYbHvo", authDomain: "kinteasho-59edd.firebaseapp.com", databaseURL: "https://kinteasho-59edd-default-rtdb.firebaseio.com", projectId: "kinteasho-59edd", storageBucket: "kinteasho-59edd.firebasestorage.app", messagingSenderId: "723979261896", appId: "1:723979261896:web:c44352817451c7e7ff92fd", measurementId: "G-FFCT16YPZ2" });
+        const db = getDatabase(app);
+
+        window.currentUser = null; window.myKey = null; window.commRate = 0.05; window.currentMethods = []; window.tempVariants = []; window.allProducts = {};
+
+        window.onload = function() { const activeSub = sessionStorage.getItem('activeSubAdmin'); if(activeSub) { const userObj = JSON.parse(activeSub); initPanel(userObj); } };
+
+        window.doLogin = () => {
+            const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
+            get(ref(db, 'admins')).then(snap => {
+                const admins = snap.val(); if(!admins) return alert("System error");
+                let valid = null;
+                Object.keys(admins).forEach(key => { const a = admins[key]; if(a.user === u && a.pass === p) { valid = a; valid.key = key; } });
+                if(valid) { sessionStorage.setItem('activeSubAdmin', JSON.stringify(valid)); initPanel(valid); } else alert("Wrong credentials");
+            });
+        };
+
+        function initPanel(userObj) {
+            window.currentUser = userObj; window.myKey = userObj.key;
+            document.getElementById('login-view').classList.add('hidden'); document.getElementById('panel-view').classList.remove('hidden');
+            document.getElementById('emp-name').innerText = userObj.user; document.getElementById('my-u').value = userObj.user; document.getElementById('my-p').value = userObj.pass;
+            if(userObj.permissions?.editPay) document.getElementById('btn-pay').classList.remove('hidden');
+            if(userObj.permissions?.viewEarn) document.getElementById('btn-earn').classList.remove('hidden');
+            loadData();
+        }
+
+        window.logout = () => { sessionStorage.removeItem('activeSubAdmin'); location.href = 'admin.html'; };
+        window.showTab = (t) => { ['ord','pay','earn','prof','prod','myearn'].forEach(x => document.getElementById('tab-'+x).classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); };
+
+        function loadData() {
+            onValue(ref(db, 'settings/commissionRate'), snap => { let r = snap.val() || 5; document.getElementById('comm-rate-disp').innerText = r + "%"; window.commRate = r / 100; });
+            
+            onValue(ref(db, 'orders'), snap => {
+                document.getElementById('ord-list').innerHTML = ''; document.getElementById('comm-list').innerHTML = '';
+                const d = snap.val(); let earn = 0; let totalSpend = 0; let myCommTotal = 0;
+                
+                // Fetch Payment Settings for calculation
+                get(ref(db, 'payment')).then(pSnap => {
+                    const paySet = pSnap.val() || {insideDhaka:60, outsideDhaka:120};
+                    
+                    if(d) Object.keys(d).reverse().forEach(k => {
+                        const o = d[k];
+                        if(o.status === 'Delivered') { 
+                            earn += o.total; 
+                            if(o.locationType === 'inside') totalSpend += paySet.insideDhaka; 
+                            else if (o.locationType === 'outside') totalSpend += paySet.outsideDhaka; 
+                        }
+                        
+                        if(o.status === 'Delivered') {
+                            let commAmt = 0; let reason = [];
+                            if(o.processedBy === window.currentUser.user) { commAmt += o.total * window.commRate; reason.push(`Processed #${k.slice(-4)}`); }
+                            if(o.items) { o.items.forEach(item => { if(item.createdBy === window.currentUser.user) { commAmt += item.price * window.commRate; reason.push(`Sold: ${item.name}`); } }); }
+                            if(commAmt > 0) { myCommTotal += commAmt; document.getElementById('comm-list').innerHTML += `<li>৳${commAmt.toFixed(2)} - ${reason.join(', ')}</li>`; }
+                        }
+                        let items = o.items ? o.items.map(i => `${i.name} [${i.selectedVariant || 'Default'}]`).join(', ') : '';
+                        document.getElementById('ord-list').innerHTML += `<tr><td>${new Date(o.date).toLocaleDateString()}</td><td>${o.customerName}<br>${o.phone}<br>${o.address}</td><td><small>${items}</small><br>৳${o.total}</td><td>Trx:${o.paymentTrx}<br>Sender:${o.paymentSender}<br><select onchange="upPay('${k}', this.value)" style="margin-top:5px;"><option value="${o.payStatus}">${o.payStatus}</option><option value="Checking">Checking</option><option value="Successful">Successful</option><option value="Unsuccessful">Unsuccessful</option></select></td><td><select onchange="upStat('${k}', this.value)"><option value="${o.status}">${o.status}</option><option value="Confirm">Confirm</option><option value="Picked-up">Picked-up</option><option value="In Transit">In Transit</option><option value="Out for Delivery">Out for Delivery</option><option value="Delivered">Delivered</option></select></td></tr>`;
+                    });
+
+                    document.getElementById('my-total-comm').innerText = "৳" + myCommTotal.toFixed(2);
+                    if(window.currentUser.permissions?.viewEarn) {
+                        document.getElementById('disp-earn').innerText = "৳" + earn;
+                        document.getElementById('disp-profit').innerText = "৳" + (earn - totalSpend);
+                    }
+                });
+            });
+
+            // PRODUCTS
+            onValue(ref(db, 'products'), snap => {
+                const list = document.getElementById('prod-list'); list.innerHTML = ''; const d = snap.val(); window.allProducts = d || {};
+                if(d) Object.keys(d).forEach(k => {
+                    const p = d[k]; let img = p.image; if(p.variants?.length > 0) img = p.variants[0].img;
+                    let delBtn = ''; if(window.currentUser.permissions?.delProd) delBtn = `<button onclick="deleteProduct('${k}')" class="btn" style="background:#ff4444;">X</button>`;
+                    list.innerHTML += `<tr><td><img src="${img}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></td><td>${p.name}</td><td>${p.price}</td><td style="font-size:0.8rem; color:#666;">${p.createdBy || 'Unknown'}</td><td><button onclick="editProduct('${k}')" class="btn" style="background:#33b5e5;">Edit</button>${delBtn}</td></tr>`;
+                });
+            });
+
+            if(window.currentUser.permissions?.editPay) {
+                onValue(ref(db, 'payment'), snap => {
+                    const p = snap.val() || {}; document.getElementById('pay-in').value = p.insideDhaka || 60; document.getElementById('pay-out').value = p.outsideDhaka || 120; document.getElementById('pay-pol').value = p.policy || 'delivery_only'; window.currentMethods = p.methods || [];
+                    const div = document.getElementById('pay-nums'); div.innerHTML = ''; window.currentMethods.forEach((m, i) => { div.innerHTML += `<div style="margin-bottom:5px;"><button onclick="delPayNum(${i})" style="color:red;border:none;">X</button> ${m.provider}: ${m.number}</div>`; });
+                });
+            }
+        }
+
+        window.addVariant = () => { const n = document.getElementById('v-name').value; const i = document.getElementById('v-img').value; if(n && i) { window.tempVariants.push({name:n, img:i}); renderVariants(); document.getElementById('v-name').value=''; document.getElementById('v-img').value=''; } };
+        window.removeVariant = (i) => { window.tempVariants.splice(i,1); renderVariants(); };
+        function renderVariants() { const d = document.getElementById('variant-list'); d.innerHTML=''; window.tempVariants.forEach((v,i) => { d.innerHTML+=`<div><b>${v.name}</b> <button onclick="removeVariant(${i})">X</button></div>`; }); }
+
+        window.saveProduct = () => {
+            const id = document.getElementById('p-key').value;
+            const data = { name: document.getElementById('p-name').value, price: parseInt(document.getElementById('p-price').value), desc: document.getElementById('p-desc').value, variants: window.tempVariants };
+            if(window.tempVariants.length > 0) data.image = window.tempVariants[0].img; else data.image = "https://via.placeholder.com/150";
+            if(id) { if(window.allProducts[id]) data.createdBy = window.allProducts[id].createdBy; update(ref(db, 'products/'+id), data).then(() => { alert("Product Updated!"); clearForm(); }); } 
+            else { data.createdBy = window.currentUser.user; push(ref(db, 'products'), data).then(() => { alert("Product Added!"); clearForm(); }); }
+        };
+        window.editProduct = (k) => { const p = window.allProducts[k]; document.getElementById('p-key').value = k; document.getElementById('p-name').value = p.name; document.getElementById('p-price').value = p.price; document.getElementById('p-desc').value = p.desc || ''; window.tempVariants = p.variants || []; renderVariants(); document.querySelector('.tabs').scrollIntoView({behavior: 'smooth'}); };
+        window.deleteProduct = (k) => { if(confirm("Delete?")) remove(ref(db, 'products/'+k)); };
+        window.clearForm = () => { document.getElementById('p-key').value = ''; document.getElementById('p-name').value = ''; document.getElementById('p-price').value = ''; document.getElementById('p-desc').value = ''; window.tempVariants=[]; renderVariants(); };
+
+        window.upStat = (k,s) => { const updates = { status: s }; if(s === 'Delivered') updates.processedBy = window.currentUser.user; update(ref(db, 'orders/'+k), updates); };
+        window.upPay = (k,s) => update(ref(db, 'orders/'+k), {payStatus:s});
+        window.savePay = () => { update(ref(db, 'payment'), { insideDhaka: parseInt(document.getElementById('pay-in').value), outsideDhaka: parseInt(document.getElementById('pay-out').value), policy: document.getElementById('pay-pol').value, methods: window.currentMethods }); alert("Payment Settings Updated"); }
+        window.addPayNum = () => { window.currentMethods.push({ provider: document.getElementById('new-prov').value, number: document.getElementById('new-num').value, active: true }); savePay(); };
+        window.delPayNum = (i) => { window.currentMethods.splice(i,1); savePay(); };
+        window.updateProfile = () => { if(!window.myKey) return; update(ref(db, 'admins/'+window.myKey), { user: document.getElementById('my-u').value, pass: document.getElementById('my-p').value }).then(() => { alert("Profile updated!"); sessionStorage.setItem('activeSubAdmin', JSON.stringify({...window.currentUser, user: document.getElementById('my-u').value, pass: document.getElementById('my-p').value})); }); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinteAsho | Online Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-red: #8B0000; --primary-gold: #D4AF37; --bg-beige: #F9F7F2; --text-dark: #333333; --white: #FFFFFF; --shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        * { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-beige); color: var(--text-dark); margin:0; padding-bottom: 50px; -webkit-tap-highlight-color: transparent; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; width: 100%; }
+        .hidden { display: none !important; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; color: white; transition:0.3s; font-size: 0.95rem; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary-red); }
+        .btn-secondary { background: var(--primary-gold); color: #333; }
+        
+        header { background: var(--white); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; padding: 10px 0; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+        .logo { font-size: 1.2rem; font-weight: 700; color: var(--primary-red); border: 2px solid var(--primary-gold); padding: 5px 10px; text-decoration: none; white-space: nowrap; }
+
+        .hero-showcase { background: linear-gradient(135deg, #2b2b2b 0%, #4a4a4a 100%); color: white; padding: 40px 20px; border-radius: 0 0 20px 20px; text-align: center; }
+        .hero-inner { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px; max-width: 1000px; margin: 0 auto; }
+        .hero-text { flex: 1; min-width: 300px; text-align: left; }
+        .hero-image-card img { border-radius: 15px; border: 4px solid var(--primary-gold); width: 100%; max-width: 350px; height: auto; object-fit: cover; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; } }
+        
+        .card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+        .card-img-container { width: 100%; height: 220px; overflow: hidden; background: #eee; }
+        .card img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
+        .card-body { padding: 15px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-body h3 { font-size: 1rem; margin: 10px 0; }
+        .variant-box { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin: 10px 0; }
+        .variant-btn { padding: 4px 8px; font-size: 0.75rem; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; border-radius: 4px; }
+        .variant-btn.active { background: var(--primary-gold); color: black; border-color: var(--primary-gold); font-weight: bold; }
+
+        .cart-section { background: white; padding: 20px; border-radius: 10px; box-shadow: var(--shadow); margin-top: 30px; }
+        .checkout-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; }
+        
+        .stats-box { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; text-align: center; border-left: 5px solid var(--primary-gold); box-shadow: var(--shadow); }
+        .status-badge { padding: 4px 8px; border-radius: 4px; color: white; font-size: 0.75rem; white-space: nowrap; }
+        .status-Pending { background: orange; }
+        .status-Confirm { background: #4285F4; }
+        .status-Delivered { background: green; }
+        
+        @media (max-width: 600px) {
+            .hero-text { text-align: center; }
+            .hero-inner { flex-direction: column-reverse; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-content">
+            <a href="#" class="logo" id="ui-site-name">KinteAsho</a>
+            <div>
+                <a href="index.html" class="btn btn-secondary" style="text-decoration:none; padding: 8px 12px;">Home</a>
+                <a href="admin.html" class="btn btn-primary" style="text-decoration:none; padding: 8px 12px;">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="hero-showcase">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <h1 id="ui-hero-title" style="font-family: 'Playfair Display'; margin-bottom: 10px;">Welcome</h1>
+                <p id="ui-hero-sub1" style="font-size: 1.1rem; margin-bottom: 5px;">Loading...</p>
+                <p id="ui-hero-sub2" style="font-size: 0.9rem; color: #ddd; margin-bottom: 20px;"></p>
+                <button class="btn btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})" id="ui-hero-btn">Shop Now</button>
+            </div>
+            <div class="hero-image-card">
+                <img id="ui-hero-img" src="https://via.placeholder.com/300" alt="Hero">
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="products">
+        <div style="text-align: center; margin: 20px 0; padding: 20px; background: white; box-shadow: var(--shadow); border-radius: 8px;">
+            <h2 id="sales-counter" style="color: var(--primary-red); font-size: 2rem; margin:0;">...</h2>
+            <p style="margin-top:5px;">Happy Customers & Counting! ❤️</p>
+        </div>
+
+        <input type="text" id="search-input" class="checkout-input" placeholder="Search products..." style="border-radius: 30px; border: 2px solid var(--primary-gold);" onkeyup="filterProducts()">
+        
+        <div id="product-list" class="product-grid">
+            <p style="text-align:center; width:100%;">Loading products...</p>
+        </div>
+
+        <div class="cart-section">
+            <h2 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Your Cart 🛒</h2>
+            <div id="cart-items" style="margin: 15px 0;"><p>Cart is empty.</p></div>
+            
+            <p style="text-align: right; margin: 5px 0; color: #666; font-size: 0.95rem;">Delivery: ৳<span id="cart-delivery">0</span></p>
+            <h3 style="text-align: right; color: var(--primary-red); margin-top: 0;">Total: ৳<span id="cart-total">0.00</span></h3>
+            
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <h4 style="margin-bottom: 15px;">Delivery Details</h4>
+                <input type="text" id="c-name" class="checkout-input" placeholder="Your Name">
+                <input type="tel" id="c-phone" class="checkout-input" placeholder="Phone Number">
+                <select id="c-loc" class="checkout-input" onchange="updateCartTotal()">
+                    <option value="" disabled selected>Select Location</option>
+                    <option value="inside">Inside Dhaka</option>
+                    <option value="outside">Outside Dhaka</option>
+                </select>
+                <textarea id="c-addr" class="checkout-input" placeholder="Full Address" rows="3"></textarea>
+                
+                <div id="payment-box" class="hidden" style="background: #fffdf5; padding: 15px; border: 1px solid var(--primary-gold); margin-bottom: 15px; border-radius: 8px;">
+                    <p style="font-weight: bold; color:var(--primary-red); font-size: 1.1rem;">Payable Now: ৳<span id="payable-display">0</span></p>
+                    <p id="pay-instruction" style="font-size:0.9rem; margin-bottom:15px; color:#555;"></p>
+                    <div id="pay-methods" style="margin-bottom:15px; background: white; padding: 10px; border-radius: 5px; border: 1px solid #eee;"></div>
+                    
+                    <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:5px;">Payment Verification:</label>
+                    <input type="text" id="pay-sender" class="checkout-input" placeholder="Sender Number (Your Wallet)">
+                    <input type="text" id="pay-trx" class="checkout-input" placeholder="Transaction ID (TrxID)">
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1rem;" onclick="placeOrder()">Place Order</button>
+            </div>
+        </div>
+
+        <div class="cart-section">
+            <h3>My Shopping Stats 🛍️</h3>
+            <div class="stats-box">
+                <div class="stat-card">
+                    <h2 id="my-total-spent" style="margin:0; color: var(--primary-red);">৳0</h2>
+                    <p style="margin:5px 0 0; font-size:0.8rem;">Total Spent</p>
+                </div>
+                <div class="stat-card">
+                    <h2 id="my-total-items" style="margin:0; color: var(--primary-red);">0</h2>
+                    <p style="margin:5px 0 0; font-size:0.8rem;">Products</p>
+                </div>
+            </div>
+            <h3>Your Order Status</h3>
+            <div id="my-orders"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const firebaseConfig = { apiKey: "AIzaSyAFzsx6gQqMTM9_uzHLcSxM1cLIaJYbHvo", authDomain: "kinteasho-59edd.firebaseapp.com", databaseURL: "https://kinteasho-59edd-default-rtdb.firebaseio.com", projectId: "kinteasho-59edd", storageBucket: "kinteasho-59edd.firebasestorage.app", messagingSenderId: "723979261896", appId: "1:723979261896:web:c44352817451c7e7ff92fd", measurementId: "G-FFCT16YPZ2" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.products = []; window.cart = []; window.settings = {}; window.payment = {};
+        window.activeVariants = {}; 
+        const myOrderIds = JSON.parse(localStorage.getItem('my_orders_ids')) || [];
+
+        onValue(ref(db, 'settings'), snap => {
+            const val = snap.val();
+            if(val) {
+                window.settings = val;
+                document.getElementById('ui-site-name').innerText = val.siteName || 'KinteAsho';
+                document.getElementById('ui-hero-title').innerText = val.heroTitle;
+                document.getElementById('ui-hero-sub1').innerHTML = val.heroSub1;
+                document.getElementById('ui-hero-sub2').innerText = val.heroSub2;
+                document.getElementById('ui-hero-btn').innerText = val.heroBtn;
+                if(val.heroImg) document.getElementById('ui-hero-img').src = val.heroImg;
+            }
+        });
+
+        onValue(ref(db, 'payment'), snap => { window.payment = snap.val() || {insideDhaka:60, outsideDhaka:120, policy:'delivery_only'}; });
+
+        onValue(ref(db, 'products'), snap => {
+            const list = document.getElementById('product-list'); list.innerHTML = ''; window.products = [];
+            const data = snap.val();
+            if(data) Object.keys(data).forEach(k => { const p = data[k]; p.key = k; window.products.push(p); });
+            renderProducts(window.products);
+        });
+
+        onValue(ref(db, 'orders'), snap => {
+            const data = snap.val(); let count = 0;
+            const myOrdersDiv = document.getElementById('my-orders'); myOrdersDiv.innerHTML = '';
+            let mySpent = 0; let myItems = 0;
+            if(data) {
+                const validStatus = ['Confirm', 'Picked-up', 'In Transit', 'Out for Delivery', 'Delivered'];
+                Object.values(data).forEach(o => { if(validStatus.includes(o.status)) count += (o.items ? o.items.length : 0); });
+                Object.keys(data).reverse().forEach(key => {
+                    if(myOrderIds.includes(key)) {
+                        const o = data[key]; mySpent += o.total; myItems += (o.items ? o.items.length : 0);
+                        myOrdersDiv.innerHTML += `<div style="border-bottom:1px solid #eee; padding:15px 0;"><div style="display:flex; justify-content:space-between;"><strong>#${key.slice(-4)}</strong><span class="status-badge status-${o.status}">${o.status}</span></div><div style="font-size:0.9rem; margin-top:5px; color:#555;">Amount: ৳${o.total} | Payment: ${o.payStatus}</div></div>`;
+                    }
+                });
+            }
+            const base = (window.settings.salesBaseCount || 150) + count;
+            document.getElementById('sales-counter').innerText = base + "+";
+            document.getElementById('my-total-spent').innerText = "৳" + mySpent;
+            document.getElementById('my-total-items').innerText = myItems;
+        });
+
+        window.renderProducts = (arr) => {
+            const list = document.getElementById('product-list'); list.innerHTML = '';
+            if(arr.length === 0) list.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:20px;">No products found.</p>';
+            arr.forEach(p => {
+                let variantBtns = '';
+                let mainImg = p.image;
+                if(!window.activeVariants[p.key]) {
+                    if(p.variants && p.variants.length > 0) { mainImg = p.variants[0].img; window.activeVariants[p.key] = p.variants[0]; } 
+                    else { window.activeVariants[p.key] = { name: "Default", img: p.image }; }
+                } else { mainImg = window.activeVariants[p.key].img; }
+
+                if(p.variants && p.variants.length > 0) {
+                    p.variants.forEach((v, idx) => {
+                        let isActive = (window.activeVariants[p.key].name === v.name) ? 'active' : '';
+                        variantBtns += `<button class="variant-btn ${isActive}" onclick="changeVariant('${p.key}', '${v.name}', '${v.img}', this)">${v.name}</button>`;
+                    });
+                }
+
+                list.innerHTML += `
+                <div class="card">
+                    <div class="card-img-container"><img id="img-${p.key}" src="${mainImg}" alt="${p.name}"></div>
+                    <div class="card-body">
+                        <div><h3>${p.name}</h3><p style="color:#666; font-size:0.85rem; line-height:1.4;">${p.desc||''}</p><div class="variant-box">${variantBtns}</div></div>
+                        <div style="margin-top:10px;"><h4 style="color:var(--primary-red); font-size:1.1rem; margin-bottom:10px;">৳${p.price}</h4><button class="btn btn-primary" style="width:100%;" onclick="addToCart('${p.key}')">Add to Cart</button></div>
+                    </div>
+                </div>`;
+            });
+        };
+
+        window.changeVariant = (key, name, img, btn) => {
+            document.getElementById(`img-${key}`).src = img;
+            window.activeVariants[key] = { name: name, img: img };
+            const siblings = btn.parentElement.querySelectorAll('.variant-btn');
+            siblings.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        };
+
+        window.filterProducts = () => { const term = document.getElementById('search-input').value.toLowerCase(); const filtered = window.products.filter(p => p.name.toLowerCase().includes(term)); renderProducts(filtered); };
+        
+        window.addToCart = (key) => { 
+            const prod = window.products.find(p => p.key === key);
+            const selectedVar = window.activeVariants[key];
+            const cartItem = { ...prod, selectedVariant: selectedVar.name, displayImage: selectedVar.img };
+            window.cart.push(cartItem); 
+            renderCart(); 
+        };
+        
+        window.removeFromCart = (idx) => { window.cart.splice(idx,1); renderCart(); };
+
+        window.renderCart = () => {
+            const div = document.getElementById('cart-items'); div.innerHTML = '';
+            if(window.cart.length === 0) div.innerHTML = '<p style="color:#888;">Your cart is currently empty.</p>';
+            window.cart.forEach((item, i) => { 
+                let varInfo = item.selectedVariant !== 'Default' ? ` <span style="font-size:0.8rem; background:#eee; padding:2px 5px; border-radius:4px;">${item.selectedVariant}</span>` : '';
+                div.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #f9f9f9; padding-bottom:5px;"><div style="display:flex; align-items:center;"><img src="${item.displayImage || item.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; margin-right:10px;"><span>${item.name}${varInfo}</span></div><span>৳${item.price} <button onclick="removeFromCart(${i})" style="color:red; border:none; background:none; font-weight:bold; cursor:pointer; padding:0 5px;">✕</button></span></div>`; 
+            });
+            updateCartTotal();
+        };
+
+        window.updateCartTotal = () => {
+            let sub = window.cart.reduce((a,b)=>a+b.price,0);
+            const loc = document.getElementById('c-loc').value;
+            let del = 0;
+            if(loc === 'inside') del = window.payment.insideDhaka || 0;
+            if(loc === 'outside') del = window.payment.outsideDhaka || 0;
+            const total = sub + del;
+            
+            document.getElementById('cart-delivery').innerText = del;
+            document.getElementById('cart-total').innerText = total;
+            
+            const box = document.getElementById('payment-box');
+            if(window.cart.length > 0 && loc) {
+                box.classList.remove('hidden');
+                let payable = (window.payment.policy === 'full_payment') ? total : del;
+                document.getElementById('payable-display').innerText = payable;
+                document.getElementById('pay-instruction').innerText = (window.payment.policy === 'full_payment') ? "Please make the Full Payment (Product + Delivery) to confirm." : "Please pay the Delivery Charge in advance. The rest is Cash on Delivery.";
+                const methodsDiv = document.getElementById('pay-methods'); methodsDiv.innerHTML = '';
+                if(window.payment.methods) window.payment.methods.forEach(m => { if(m.active) methodsDiv.innerHTML += `<div style="margin-bottom:5px;"><strong>${m.provider}</strong>: <span style="font-family:monospace; font-size:1.1rem; color:var(--primary-red); user-select:all;">${m.number}</span></div>`; });
+            } else { box.classList.add('hidden'); }
+        };
+
+        window.placeOrder = () => {
+            if(window.cart.length === 0) return alert("Cart is empty");
+            const name = document.getElementById('c-name').value;
+            const phone = document.getElementById('c-phone').value;
+            const loc = document.getElementById('c-loc').value;
+            const addr = document.getElementById('c-addr').value;
+            if(!name || !phone || !loc || !addr) return alert("Please fill all details");
+            const trx = document.getElementById('pay-trx').value;
+            const sender = document.getElementById('pay-sender').value;
+            if(!trx || !sender) return alert("Please enter Payment Sender Number and TrxID");
+
+            const order = { 
+                customerName: name, phone: phone, address: `[${loc}] ${addr}`, locationType: loc, items: window.cart, 
+                total: parseFloat(document.getElementById('cart-total').innerText), paymentTrx: trx, paymentSender: sender, 
+                status: 'Pending', payStatus: 'Checking', date: new Date().toISOString() 
+            };
+            push(ref(db, 'orders'), order).then((snap) => {
+                alert("Order Placed Successfully!");
+                myOrderIds.push(snap.key);
+                localStorage.setItem('my_orders_ids', JSON.stringify(myOrderIds));
+                window.cart = []; renderCart(); location.reload();
+            });
+        };
+    </script>
+</body>
+</html>

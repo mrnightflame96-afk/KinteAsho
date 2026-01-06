@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Login</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+        .hidden { display: none !important; }
+        .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 100%; max-width: 350px; text-align: center; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .login-btn { width: 100%; padding: 12px; background: #8B0000; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; }
+        .tab-btn { background: #e4e6eb; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; color: #555; font-weight: 600; font-size: 0.9rem; flex-grow: 1; }
+        .tab-btn.active { background: #8B0000; color: white; }
+        .table-wrapper { width: 100%; overflow-x: auto; margin-top: 15px; border: 1px solid #eee; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background: #333; color: white; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-right: 3px; }
+        .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .earnings-card { background: #fafafa; padding: 20px; border-radius: 8px; border-left: 5px solid #8B0000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="login-wrapper">
+        <div class="login-box">
+            <h2>Authorized Access</h2>
+            <input type="text" id="user" class="login-input" placeholder="Username">
+            <input type="password" id="pass" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="window.doLogin()">Login</button>
+            <p id="login-status" style="color:red; margin-top:10px; font-size:0.9rem;"></p>
+        </div>
+    </div>
+
+    <div id="panel-view" class="container hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0;">Control Panel</h2>
+            <button class="btn" style="background:#ff4444;" onclick="location.reload()">Logout</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('prod')">Products</button>
+            <button class="tab-btn" onclick="showTab('ord')">Orders</button>
+            <button class="tab-btn" onclick="showTab('earn')">Earnings</button>
+            <button class="tab-btn" onclick="showTab('pay')">Payment</button>
+            <button class="tab-btn" onclick="showTab('set')">Content</button>
+            <button class="tab-btn" onclick="showTab('adm')">Admins</button>
+        </div>
+
+        <div id="tab-prod">
+            <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px;">
+                <h3>Add / Edit Product</h3>
+                <input type="hidden" id="p-key">
+                <div class="form-grid">
+                    <input type="text" id="p-name" placeholder="Product Name">
+                    <input type="number" id="p-price" placeholder="Price">
+                </div>
+                <input type="text" id="p-desc" placeholder="Description">
+                
+                <hr style="margin: 15px 0; border:0; border-top:1px solid #ddd;">
+                <label style="font-weight:bold;">Variants (Colors/Angles)</label>
+                <div class="form-grid" style="align-items: center; margin-bottom: 10px;">
+                    <input type="text" id="v-name" placeholder="Name (e.g. Red)">
+                    <input type="text" id="v-img" placeholder="Image URL">
+                </div>
+                <button class="btn" style="background:#33b5e5; width:100%; margin-bottom:10px;" onclick="addVariant()">+ Add Variant</button>
+                <div id="variant-list" style="background:#eee; padding:10px; border-radius:5px; margin-bottom:10px;"></div>
+
+                <button class="btn" style="background:#00C851; width:100%; padding:10px;" onclick="saveProduct()">Save Product</button>
+                <button class="btn" style="background:#333; width:100%; margin-top:5px;" onclick="clearProd()">Clear Form</button>
+            </div>
+            <div class="table-wrapper">
+                <table><thead><tr><th>Name</th><th>Price</th><th>Variants</th><th>Action</th></tr></thead><tbody id="prod-list"></tbody></table>
+            </div>
+        </div>
+
+        <div id="tab-ord" class="hidden">
+            <h3>Orders</h3>
+            <div class="table-wrapper">
+                <table><thead><tr><th>Date</th><th>Customer</th><th>Details</th><th>Total</th><th>Status</th></tr></thead><tbody id="ord-list"></tbody></table>
+            </div>
+        </div>
+
+        <div id="tab-earn" class="hidden">
+            <h3>Analytics</h3>
+            <div class="earnings-grid">
+                <div class="earnings-card">
+                    <h3>Total Revenue</h3>
+                    <h1 id="disp-earn" style="color: #00C851;">৳0</h1>
+                    <small>Total Received</small>
+                </div>
+                <div class="earnings-card" style="border-left-color:#333;">
+                    <h3>Delivery Spend</h3>
+                    <h1 id="disp-spend" style="color: #ff4444;">৳0</h1>
+                    <small>Cost to Ship</small>
+                </div>
+                <!-- NEW NET PROFIT CARD -->
+                <div class="earnings-card" style="border-left-color:#007bff;">
+                    <h3>Net Profit</h3>
+                    <h1 id="disp-net" style="color: #007bff;">৳0</h1>
+                    <small>Revenue - Spend</small>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-pay" class="hidden">
+            <h3>Payment</h3>
+            <div class="form-grid">
+                <div><label>Inside Dhaka (৳)</label><input type="number" id="pay-in"></div>
+                <div><label>Outside Dhaka (৳)</label><input type="number" id="pay-out"></div>
+            </div>
+            <select id="pay-pol" style="margin-top:10px;"><option value="delivery_only">Delivery Only</option><option value="full_payment">Full Payment</option></select>
+            <div id="pay-nums" style="margin-top:15px;"></div>
+            <div class="form-grid" style="margin-top:10px;">
+                <input type="text" id="new-prov" placeholder="Provider">
+                <input type="text" id="new-num" placeholder="Number">
+            </div>
+            <button class="btn" style="background:#00C851; width:100%; padding:10px;" onclick="addPayNum()">Add Number</button>
+            <button class="btn" style="background:#8B0000; width:100%; padding:12px; margin-top:20px;" onclick="savePaySet()">SAVE SETTINGS</button>
+        </div>
+
+        <div id="tab-set" class="hidden">
+            <h3>Content</h3>
+            <label>Site Name</label><input type="text" id="s-name">
+            <label>Hero Title</label><input type="text" id="s-title">
+            <label>Subtitle 1</label><input type="text" id="s-sub1">
+            <label>Subtitle 2</label><input type="text" id="s-sub2">
+            <label>Button</label><input type="text" id="s-btn">
+            <label>Hero Image</label><input type="text" id="s-img">
+            <button class="btn" style="background:#8B0000; width:100%; padding:12px; margin-top:10px;" onclick="saveSiteSet()">Update Content</button>
+        </div>
+
+        <div id="tab-adm" class="hidden">
+            <h3>Admins</h3>
+            <div style="background:#fff3cd; padding:15px; margin-bottom:15px; border-radius:8px;">
+                <label>Sub-Admin Commission (%):</label>
+                <div style="display:flex; gap:10px;"><input type="number" id="comm-rate" style="width:80px;"><button class="btn" style="background:#8B0000;" onclick="saveCommRate()">Set</button></div>
+            </div>
+            <div style="background:#e3f2fd; padding:15px; margin-bottom:15px; border-radius:8px;">
+                <h4>My Profile</h4>
+                <div class="form-grid"><input type="text" id="my-u"><input type="text" id="my-p"></div>
+                <button class="btn" style="background:#33b5e5; width:100%;" onclick="updateMyProfile()">Update Me</button>
+            </div>
+            <div style="background:#f0f0f0; padding:15px; margin-bottom:15px; border-radius:8px;">
+                <h4>New Sub-Admin</h4>
+                <div class="form-grid"><input type="text" id="new-adm-u" placeholder="Username"><input type="text" id="new-adm-p" placeholder="Password"></div>
+                <div style="display:flex; gap:15px; margin:10px 0;">
+                    <label><input type="checkbox" id="perm-earn"> View Earnings</label>
+                    <label><input type="checkbox" id="perm-pay"> Edit Pay</label>
+                    <label><input type="checkbox" id="perm-del"> Delete Prod</label>
+                </div>
+                <button class="btn" style="background:#00C851; width:100%;" onclick="addAdmin()">Create</button>
+            </div>
+            <div class="table-wrapper">
+                <table><thead><tr><th>User</th><th>Pass</th><th>Perms</th><th>Actions</th></tr></thead><tbody id="adm-list"></tbody></table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const app = initializeApp({ apiKey: "AIzaSyAFzsx6gQqMTM9_uzHLcSxM1cLIaJYbHvo", authDomain: "kinteasho-59edd.firebaseapp.com", databaseURL: "https://kinteasho-59edd-default-rtdb.firebaseio.com", projectId: "kinteasho-59edd", storageBucket: "kinteasho-59edd.firebasestorage.app", messagingSenderId: "723979261896", appId: "1:723979261896:web:c44352817451c7e7ff92fd", measurementId: "G-FFCT16YPZ2" });
+        const db = getDatabase(app);
+        
+        window.myKey = null;
+        window.tempVariants = [];
+        window.allProducts = {};
+
+        window.doLogin = () => {
+            const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
+            const status = document.getElementById('login-status'); status.innerText = "Checking...";
+            get(ref(db, 'admins')).then(snap => {
+                if(!snap.exists()) { if(u === 'main' && p === 'main123') { set(ref(db, 'admins/main_admin'), {user:'main', pass:'main123', role:'super'}); alert("Initialized! Login again."); return; } }
+                const admins = snap.val(); let foundAdmin = null; let foundKey = null;
+                Object.keys(admins).forEach(key => {
+                    const a = admins[key];
+                    if(a.user === u && a.pass === p && a.role === 'super') { valid = true; window.myKey = key; document.getElementById('my-u').value = a.user; document.getElementById('my-p').value = a.pass; }
+                });
+                if(valid) openPanel(); else alert("Invalid Credentials or not Main Admin");
+            });
+        };
+
+        window.doLogin = () => {
+            const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
+            const status = document.getElementById('login-status'); status.innerText = "Checking...";
+            get(ref(db, 'admins')).then(snap => {
+                if(!snap.exists()) { if(u === 'main' && p === 'main123') { set(ref(db, 'admins/main_admin'), {user:'main', pass:'main123', role:'super'}); alert("Initialized! Login again."); return; } }
+                const admins = snap.val(); let foundAdmin = null; let foundKey = null;
+                Object.keys(admins).forEach(key => { if(admins[key].user === u && admins[key].pass === p) { foundAdmin = admins[key]; foundKey = key; } });
+                if(foundAdmin) {
+                    if(foundAdmin.role === 'super') {
+                        window.myKey = foundKey; document.getElementById('my-u').value = foundAdmin.user; document.getElementById('my-p').value = foundAdmin.pass;
+                        document.getElementById('login-view').classList.add('hidden'); document.getElementById('panel-view').classList.remove('hidden'); loadAll();
+                    } else if (foundAdmin.role === 'sub') {
+                        sessionStorage.setItem('activeSubAdmin', JSON.stringify({key: foundKey, ...foundAdmin}));
+                        window.location.href = 'sub-admin.html';
+                    }
+                } else { status.innerText = "Invalid Credentials"; }
+            });
+        };
+
+        window.showTab = (t) => { ['prod','ord','set','adm','pay','earn'].forEach(x => document.getElementById('tab-'+x).classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); };
+
+        function loadAll() {
+            onValue(ref(db, 'products'), snap => {
+                document.getElementById('prod-list').innerHTML = ''; const d = snap.val(); window.allProducts = d || {};
+                if(d) Object.keys(d).forEach(k => {
+                    const p = d[k]; let vCount = p.variants ? p.variants.length : 0;
+                    document.getElementById('prod-list').innerHTML += `<tr><td>${p.name}</td><td>${p.price}</td><td>${vCount} Vars</td><td><button class="btn" style="background:#33b5e5;" onclick="editP('${k}')">Edit</button> <button class="btn" style="background:#ff4444;" onclick="delP('${k}')">X</button></td></tr>`;
+                });
+            });
+            onValue(ref(db, 'orders'), snap => {
+                document.getElementById('ord-list').innerHTML = ''; const d = snap.val(); let totalEarn = 0; let totalSpend = 0;
+                get(ref(db, 'payment')).then(pSnap => {
+                    const paySet = pSnap.val() || {insideDhaka:60, outsideDhaka:120};
+                    if(d) Object.keys(d).reverse().forEach(k => {
+                        const o = d[k];
+                        if(o.status === 'Delivered') { 
+                            totalEarn += o.total; 
+                            if(o.locationType === 'inside') totalSpend += paySet.insideDhaka; 
+                            else if (o.locationType === 'outside') totalSpend += paySet.outsideDhaka; 
+                        }
+                        let items = o.items ? o.items.map(i => `${i.name} [${i.selectedVariant || 'Default'}]`).join(', ') : '';
+                        document.getElementById('ord-list').innerHTML += `<tr><td>${new Date(o.date).toLocaleDateString()}</td><td>${o.customerName}<br>${o.phone}<br>${o.address}</td><td><small>${items}</small><br><strong>Total: ${o.total}</strong></td><td>Trx:${o.paymentTrx}<br>Sender:${o.paymentSender}<br><select onchange="upPay('${k}', this.value)" style="margin-top:5px;"><option value="${o.payStatus}">${o.payStatus}</option><option value="Checking">Checking</option><option value="Successful">Successful</option><option value="Unsuccessful">Unsuccessful</option></select></td><td><select onchange="upStat('${k}', this.value)"><option value="${o.status}">${o.status}</option><option value="Pending">Pending</option><option value="Confirm">Confirm</option><option value="Picked-up">Picked-up</option><option value="In Transit">In Transit</option><option value="Out for Delivery">Out for Delivery</option><option value="Delivered">Delivered</option><option value="Cancelled">Cancelled</option></select></td></tr>`;
+                    });
+                    
+                    // UPDATED ANALYTICS DISPLAY
+                    const net = totalEarn - totalSpend;
+                    document.getElementById('disp-earn').innerText = "৳" + totalEarn; 
+                    document.getElementById('disp-spend').innerText = "৳" + totalSpend;
+                    document.getElementById('disp-net').innerText = "৳" + net;
+                });
+            });
+            onValue(ref(db, 'settings'), snap => { const s = snap.val() || {}; document.getElementById('s-name').value = s.siteName || ''; document.getElementById('s-title').value = s.heroTitle || ''; document.getElementById('s-sub1').value = s.heroSub1 || ''; document.getElementById('s-sub2').value = s.heroSub2 || ''; document.getElementById('s-btn').value = s.heroBtn || ''; document.getElementById('s-img').value = s.heroImg || ''; document.getElementById('comm-rate').value = s.commissionRate || 5; });
+            onValue(ref(db, 'payment'), snap => {
+                const p = snap.val() || {}; document.getElementById('pay-in').value = p.insideDhaka || 60; document.getElementById('pay-out').value = p.outsideDhaka || 120; document.getElementById('pay-pol').value = p.policy || 'delivery_only';
+                const div = document.getElementById('pay-nums'); div.innerHTML = ''; if(p.methods) p.methods.forEach((m, i) => { div.innerHTML += `<div style="margin-bottom:5px;"><button class="btn" style="background:#ff4444; padding:2px 5px;" onclick="delPayNum(${i})">X</button> ${m.provider}: ${m.number}</div>`; }); window.currentMethods = p.methods || [];
+            });
+            onValue(ref(db, 'admins'), snap => {
+                const l = document.getElementById('adm-list'); l.innerHTML = ''; const d = snap.val();
+                if(d) Object.keys(d).forEach(k => {
+                    const a = d[k]; if(a.role === 'super') return;
+                    l.innerHTML += `<tr><td><input type="text" id="u-${k}" value="${a.user}" style="font-weight:bold; width:80px;"></td><td><input type="text" id="p-${k}" value="${a.pass}" style="width:80px;"></td>
+                    <td>
+                        <label><input type="checkbox" id="pe-${k}" ${a.permissions?.viewEarn ? 'checked' : ''}> Earn</label><br>
+                        <label><input type="checkbox" id="pp-${k}" ${a.permissions?.editPay ? 'checked' : ''}> Pay</label><br>
+                        <label><input type="checkbox" id="pd-${k}" ${a.permissions?.delProd ? 'checked' : ''}> Del</label>
+                    </td>
+                    <td><button class="btn" style="background:#33b5e5;" onclick="updateSubAdmin('${k}')">Save</button> <button class="btn" style="background:#ff4444;" onclick="delAdm('${k}')">X</button></td></tr>`;
+                });
+            });
+        }
+
+        window.addVariant = () => { const n = document.getElementById('v-name').value; const i = document.getElementById('v-img').value; if(n && i) { window.tempVariants.push({name:n, img:i}); renderVariants(); document.getElementById('v-name').value=''; document.getElementById('v-img').value=''; } };
+        window.removeVariant = (i) => { window.tempVariants.splice(i,1); renderVariants(); };
+        function renderVariants() { const d = document.getElementById('variant-list'); d.innerHTML=''; window.tempVariants.forEach((v,i) => { d.innerHTML+=`<div><b>${v.name}</b> <button onclick="removeVariant(${i})">X</button></div>`; }); }
+
+        window.saveProduct = () => {
+            const k = document.getElementById('p-key').value;
+            const d = { name: document.getElementById('p-name').value, price: parseInt(document.getElementById('p-price').value), desc: document.getElementById('p-desc').value, variants: window.tempVariants };
+            if(window.tempVariants.length > 0) d.image = window.tempVariants[0].img; else d.image = "https://via.placeholder.com/150";
+            if(k) { d.createdBy = window.allProducts[k].createdBy; update(ref(db, 'products/'+k), d); } 
+            else { d.createdBy = 'Main Admin'; push(ref(db, 'products'), d); }
+            clearProd();
+        };
+        window.editP = (k) => { const p = window.allProducts[k]; document.getElementById('p-key').value=k; document.getElementById('p-name').value=p.name; document.getElementById('p-price').value=p.price; document.getElementById('p-desc').value=p.desc; window.tempVariants=p.variants||[]; renderVariants(); };
+        window.delP = (k) => { if(confirm('Delete?')) remove(ref(db, 'products/'+k)); };
+        window.clearProd = () => { document.getElementById('p-key').value=''; document.getElementById('p-name').value=''; document.getElementById('p-price').value=''; document.getElementById('p-desc').value=''; window.tempVariants=[]; renderVariants(); };
+        
+        window.upStat = (k,s) => { const updates = { status: s }; if(s === 'Delivered') updates.processedBy = 'Main Admin'; update(ref(db, 'orders/'+k), updates); };
+        window.upPay = (k,s) => update(ref(db, 'orders/'+k), {payStatus:s});
+        window.saveSiteSet = () => update(ref(db, 'settings'), { siteName: document.getElementById('s-name').value, heroTitle: document.getElementById('s-title').value, heroSub1: document.getElementById('s-sub1').value, heroSub2: document.getElementById('s-sub2').value, heroBtn: document.getElementById('s-btn').value, heroImg: document.getElementById('s-img').value });
+        window.saveCommRate = () => update(ref(db, 'settings'), { commissionRate: parseFloat(document.getElementById('comm-rate').value) }).then(()=>alert("Rate Saved"));
+        window.addPayNum = () => { window.currentMethods.push({ provider: document.getElementById('new-prov').value, number: document.getElementById('new-num').value, active: true }); savePaySet(); };
+        window.delPayNum = (i) => { window.currentMethods.splice(i,1); savePaySet(); };
+        window.savePaySet = () => update(ref(db, 'payment'), { insideDhaka: parseInt(document.getElementById('pay-in').value), outsideDhaka: parseInt(document.getElementById('pay-out').value), policy: document.getElementById('pay-pol').value, methods: window.currentMethods });
+        window.updateMyProfile = () => { if(!window.myKey) return; update(ref(db, 'admins/'+window.myKey), { user: document.getElementById('my-u').value, pass: document.getElementById('my-p').value }).then(() => alert("Profile Saved!")); };
+        
+        window.addAdmin = () => {
+            push(ref(db, 'admins'), { 
+                user: document.getElementById('new-adm-u').value, pass: document.getElementById('new-adm-p').value, role: 'sub', 
+                permissions: { viewEarn: document.getElementById('perm-earn').checked, editPay: document.getElementById('perm-pay').checked, delProd: document.getElementById('perm-del').checked } 
+            }); 
+            document.getElementById('new-adm-u').value=''; document.getElementById('new-adm-p').value=''; 
+        };
+        window.updateSubAdmin = (k) => {
+            update(ref(db, 'admins/'+k), { 
+                user: document.getElementById('u-'+k).value, pass: document.getElementById('p-'+k).value, 
+                permissions: { viewEarn: document.getElementById('pe-'+k).checked, editPay: document.getElementById('pp-'+k).checked, delProd: document.getElementById('pd-'+k).checked } 
+            }).then(() => alert("Admin Updated!")); 
+        };
+        window.delAdm = (k) => { if(confirm("Remove?")) remove(ref(db, 'admins/'+k)); };
+    </script>
+</body>
+</html>
