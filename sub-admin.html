@@ -141,7 +141,7 @@
             loadData();
         }
 
-        window.logout = () => { sessionStorage.removeItem('activeSubAdmin'); location.href = 'admin.html'; };
+        window.logout = () => { sessionStorage.removeItem('activeSubAdmin'); location.href = 'index.html'; };
         window.showTab = (t) => { ['ord','pay','earn','prof','prod','myearn'].forEach(x => document.getElementById('tab-'+x).classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); };
 
         function loadData() {
